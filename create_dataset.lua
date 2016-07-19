@@ -10,8 +10,10 @@ cmd:text()
 cmd:text('Torch-7 context encoder training script')
 cmd:text()
 cmd:text('Options:')
-cmd:option('-train','/path/to/trainData/images','Path to train data')
-cmd:option('-test','/path/to/test','Path to the test data')
+cmd:option('-train','','Path to train data')
+cmd:option('-trainOutput','','Path to output train file to be generated')
+cmd:option('-test','','Path to the test data')
+cmd:option('-testOutput','','Path to test file to be generated')
 
 function findImages(dir,ext)
     -- find options
@@ -92,10 +94,20 @@ function create_train_h5(dir, ext, h5path)
     myf:close()
 end
 
+local opt = cmd:parse(arg or {}) -- Table containing all the above options
+for i,v in pairs(opt) do
+    if v == "" then
+        opt[i] = nil
+    end
+end
 
 -- for train images
 -- Masks must be in /path/to/trainData/masks
--- create_train_h5('/path/to/trainData/images','png','/path/to/save/train/file')
+if opt.train and opt.trainOutput then
+    create_train_h5(opt.train,'png',opt.trainOutput)
+end
 
 -- for test images
--- create_h5('/path/to/test','png','/path/to/save/test/file','/images')
+if opt.test and opt.testOutput then
+    create_h5(opt.test,'png',opt.testOutput,'/images')
+end
