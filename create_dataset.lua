@@ -1,3 +1,12 @@
+--[[
+This code is part of Ultrasound-Nerve-Segmentation using Torchnet
+
+Copyright (c) 2016, Qure.AI, Pvt. Ltd.
+All rights reserved.
+
+Creates the dataset for use in HDF5 format
+--]]
+
 require 'paths'
 require 'hdf5'
 require 'xlua'
@@ -39,6 +48,7 @@ end
 
 -- creates the h5 file given dir, ext, h5path,dsetName
 function create_h5(dir,ext,h5path,dsetName)
+    print("Creating test dataset")
     local pathsImages = findImages(dir,ext)
     local mTensor = torch.FloatTensor(#pathsImages,1,420,580)
     for i,v in ipairs(pathsImages) do
@@ -57,6 +67,7 @@ end
 
 -- Find isn't returning in alphabetical order, reading images based on mask paths
 function create_train_h5(dir, ext, h5path)
+    print("Creating train dataset")
     local images = findImages(dir,ext)
 
     -- creating a count of list of number of images per patient
