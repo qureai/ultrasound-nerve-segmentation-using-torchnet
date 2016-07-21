@@ -1,3 +1,4 @@
 .nfs*
 data/*
 .ftpconfig
+.DS_STORE
