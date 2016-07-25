@@ -1,5 +1,5 @@
 --[[
-This code is part of Ultrasound-Nerve-Segmentation using Torchnet
+This code is part of Ultrasound-Nerve-Segmentation Program
 
 Copyright (c) 2016, Qure.AI, Pvt. Ltd.
 All rights reserved.

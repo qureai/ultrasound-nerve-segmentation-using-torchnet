@@ -1,6 +1,6 @@
 # Ultrasound Nerve Segmentation Challenge using Torchnet
 
-This repository acts as a starting point for someone who wants to start with the [challenge](https://www.kaggle.com/c/ultrasound-nerve-segmentation) and exploit [torchnet](https://github.com/torchnet/torchnet) for the same.
+This repository acts as a starting point for someone who wants to start with the [kaggle ultrasound-nerve-segmentation challenge](https://www.kaggle.com/c/ultrasound-nerve-segmentation) and exploit [torchnet](https://github.com/torchnet/torchnet) for the same. The challenge in itself acts as a learning experience for segmentation problems.
 
 ## Requirements
 
@@ -16,10 +16,6 @@ This repository acts as a starting point for someone who wants to start with the
     - [paths](https://github.com/torch/paths)
     - [csvigo](https://github.com/clementfarabet/lua---csv)
     - [imagemagick](http://www.imagemagick.org/script/index.php)
-
-## Project Structure
-
-- constants.lua : Contains the constants that we will be using throughout the code
 
 ## Dataset Generation
 
@@ -55,8 +51,8 @@ th main.lua [OPTIONS]
 
 | Option | Default value | Description |
 | ------ | --- | ----------- |
-| `-dataset` | `data/train.h5` | Path to training dataset to be used, in format as specified above |
-| `-models` | `models/unet.lua` | Path of the model to be used, which must have createModel function that returns model |
+| `-dataset` | `data/train.h5` | Path to training dataset to be used |
+| `-model` | `models/unet.lua` | Path of the model to be used |
 | `-trainSize` | 100 | Amount of data to be used for training, -1 if complete train data to be used |
 | `-valSize` | 25 | Amount of data to be used for validation, -1 if complete validation to be used |
 | `-trainBatchSize` | 64 | Size of batch size to be used for training |
@@ -64,8 +60,60 @@ th main.lua [OPTIONS]
 | `-savePath` | `data/saved_models` | Path where models must be saved |
 | `-optimMethod` | `sgd` | Method to be used for training, can be sgd or adam |
 | `-maxepoch` | 250 | Maximum epochs for which training must be done |
-| `-cvparam` | 2 | Cross validation parameter, more info in [] |
+| `-cvparam` | 2 | Cross validation parameter |
 
 ### Train Validation Data Split
 
-The images are given for each patient, and thus in dataset we have 47 patients with each patient having 119/120 images. To assess the real performance of our model, we divide the dataset into train and validation based on patients and use 80-20 split. Thus, now question arises which patients to use for validation and which for training.To solve this, we keep a parameter `-cvparam`, such that all patients with `patient_id%5==cvparam` are used in validation, else in training. Now out of these images, we select `-trainSize` number of images and `-valSize` number of images for training and validation respectively.
+The images are given for each patient, and thus in dataset we have 47 patients with each patient having 119|120 images. To assess the real performance of our model, we divide the dataset into train and validation based on patients and use 80-20 split. Thus, now question arises which patients to use for validation and which for training.To solve this, we keep a parameter `-cvparam`, such that all patients with `patient_id%5==cvparam` are used in validation, else in training. Now out of these images, we select `-trainSize` number of images and `-valSize` number of images for training and validation respectively.
+
+### Data Augmentation
+
+Data augmentation plays a vital role in any segmentation problem with limited dataset. Here we do on-the-fly data augmentation using [Resnet's transformation file](https://github.com/facebook/fb.resnet.torch/blob/master/datasets/transforms.lua). The image goes through following transformations:
+
+1. Horizontal flip with probability 0.5
+2. Vertical flip with probability 0.5
+3. Rotation between -5 to 5 degrees with uniform probability
+4. Elastic transformations
+
+### Constants
+
+We resize the image to `imgWidth * imgHeight` and then pass to our model. For creating segmentation masks, we consider a pixel from the output to be a part of mask iff `prob_pixel > baseSegmentationProb`. One can define these values in [constants.lua](constants.lua) file.
+
+## Submission file
+
+```
+th generate_submission.lua [OPTIONS]
+```
+
+### Options
+
+| Option | Default value | Description |
+| ------ | --- | ----------- |
+| `-dataset` | `data/test.h5` | Path to dataset to be used |
+| `-model` | `models/unet.t7` | Path of the model to be used |
+| `-csv` | `submission.csv` | Path of the csv to be generated |
+| `-testSize` | 5508 | Number of images to be used for generating test data, must be < 5508 |
+
+
+## Exploiting Torchnet
+
+[Torchnet](https://lvdmaaten.github.io/publications/papers/Torchnet_2016.pdf) was introduced in second half of June to enable code re-use and making writing code in Torch much more simple. It is basically a well structured implementation of the boilerplate code such as permutation for batches, training for loop and all such things, into a single library. In this project, we have exploited 4 major tools provided by torchnet
+
+1. Datasets
+2. Dataset Iterators
+3. Engine
+4. Meters
+
+### Datasets
+
+```lua
+local dataset = tnt.ShuffleDataset{
+    dataset = tnt.ListDataset{
+        list = torch.range(1,#images):long(),
+        load = function(idx)
+            return { input = images[idx], target = masks[idx] }
+        end,
+    },
+    size = size
+}
+```
