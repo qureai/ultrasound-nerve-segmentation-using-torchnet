@@ -4,7 +4,7 @@ This code is part of Ultrasound-Nerve-Segmentation using Torchnet
 Copyright (c) 2016, Qure.AI, Pvt. Ltd.
 All rights reserved.
 
-Machine enclosing the torchnet engine
+Machine wrapping over the torchnet engine
 --]]
 
 require 'torch'

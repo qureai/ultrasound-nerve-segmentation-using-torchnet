@@ -116,9 +116,13 @@ function GetTunedResult(image, prob)
 end
 
 --- Returns the mask given the output from unet, does resizing to original image if sizing set true
-function GetMaskFromOutput(output,sizing)
-	if sizing then
-		return GetTunedResult(GetScaledUpImage(GetMaskProbabilities(output))[2],baseSegmentationProb):float()
+function GetMaskFromOutput(output,sizing,callback)
+	local outputsoftmax = GetMaskProbabilities(output)
+	if callback then
+		outputsoftmax = callback(outputsoftmax:float())
 	end
-	return GetTunedResult(GetMaskProbabilities(output)[2],baseSegmentationProb):float()
+	if sizing then
+		outputsoftmax = GetScaledUpImage(outputsoftmax)
+	end
+	return GetTunedResult(outputsoftmax[2],baseSegmentationProb):float()
 end

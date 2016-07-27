@@ -63,7 +63,7 @@ function GenerateMasks(opt)
 	local maskCount = 0
 	for i=1,opt.testSize do
 		-- scale the image and divide the pixel by 255
-		local input = image.scale(testImages[i][1], imgWidth, imgHeight, interpolation):div(255)
+		local input = image.scale(testImages[i][1], imgWidth, imgHeight, interpolation)
 		local modelOutput = GetSegmentationModelOutputs(model,input)
 		masks[i] = modelOutput:t():reshape(trueWidth*trueHeight) -- taking transpose and reshaping it for being able to convert to RLE
 		if GetLabel(masks[i]) == 2 then
@@ -83,7 +83,7 @@ function GetSegmentationModelOutputs(model,img)
 	local modelOutputs = torch.Tensor(#transformations+1,trueHeight,trueWidth)
 	modelOutputs[1] = GetMaskFromOutput(model:forward(img:reshape(1,1,imgHeight,imgWidth):cuda())[1],true)
 	for i=1,#transformations do
-		modelOutputs[i+1] = transformations[i]['undo'](GetMaskFromOutput(model:forward(transformations[i]['do'](img):reshape(1,1,imgHeight,imgWidth):cuda())[1],true))
+		modelOutputs[i+1] = GetMaskFromOutput(model:forward(transformations[i]['do'](img):reshape(1,1,imgHeight,imgWidth):cuda())[1],true,transformations[i]['undo'])
 	end
 	return GetTunedResult(torch.mean(modelOutputs,1)[1],0.5)
 end

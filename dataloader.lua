@@ -55,19 +55,13 @@ function DataLoader:Setup(opt)
         if string.find(i_string,"images") then
             local patientNumber = tonumber(i_string:gsub("images_",""),10)
             local masks = fullData[i_string:gsub("images","masks")]
-            if patientNumber%5 == cvParam then -- implies that patient will be used in validation
-                for j=1,v:size(1) do
-                    self.valImages[#self.valImages+1] = v[j]:div(255)
-                end
-                for j=1,v:size(1) do
-                    self.valMasks[#self.valMasks+1] = masks[j]:div(255):add(1)
-                end
-            else
-                for j=1,v:size(1) do
-                    self.trainImages[#self.trainImages+1] = v[j]:div(255)
-                end
-                for j=1,v:size(1) do
-                    self.trainMasks[#self.trainMasks+1] = masks[j]:div(255):add(1)
+            for j=1,v:size(1) do
+                if patientNumber%5 == cvParam then
+                    self.valImages[#self.valImages+1] = v[j]
+                    self.valMasks[#self.valMasks+1] = masks[j]:add(1)
+                else
+                    self.trainImages[#self.trainImages+1] = v[j]
+                    self.trainMasks[#self.trainMasks+1] = masks[j]:add(1)
                 end
             end
         end
