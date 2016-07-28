@@ -99,7 +99,6 @@ function CalculateDiceScore(outputs, targets)
     local dice_coeff = 0
     for i=1,outputs:size(1) do
         local output_flatten = GetMaskFromOutput(outputs[i])
-		-- local output_flatten = GetTunedResult(outputs[i],baseSegmentationProb)
         local target_flatten = targets[i]:float():add(-1)
         local numerator = torch.cmul(output_flatten, target_flatten)
         if output_flatten:sum() + target_flatten:sum() ~= 0 then
