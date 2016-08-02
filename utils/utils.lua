@@ -61,7 +61,7 @@ end
 
 --- Returns masks with pixel-wise probabilities
 function GetMaskProbabilities(vec)
-	local spatialSoftMax = nn.Sequential():add(nn.SpatialSoftMax()):cuda()
+	local spatialSoftMax = nn.Sequential():add(cudnn.SpatialSoftMax()):cuda()
 	vec = vec:cuda()
 	return spatialSoftMax:forward(vec)
 end
